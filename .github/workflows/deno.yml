@@ -1,0 +1,40 @@
+name: Deno CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run linter
+        run: deno lint
+
+      - name: Run tests
+        run: deno test -A
+
+      - name: Deploy to VPS
+        if: success()
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd /software-1/users_backend/
+            git pull origin main
+            deno run --allow-net --allow-read main.ts
