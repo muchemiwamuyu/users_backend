@@ -2,6 +2,7 @@ import express from 'express';
 import userRoutes from './routes/userRoutes.js';
 import dotenv from 'dotenv';
 import connectDb from './config/database.js';
+import process from 'node:process';
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.use(express.json());
 // connecting to database
 connectDb();
 
-app.get('/', async (req, res) => {
+app.get('/', async (_req, res) => {
 
     const db = await connectDb();
     try {
