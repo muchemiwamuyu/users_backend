@@ -1,40 +1,31 @@
-name: Deno CI/CD
+name: Deploy to VPS
 
 on:
   push:
-    branches: ["main"]
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
-
-      - name: Run linter
-        run: deno lint
-
-      - name: Run tests
-        run: deno test -A || echo 'No tests found'
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519_ci_pipelines
+          chmod 600 ~/.ssh/id_ed25519_ci_pipelines
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 
       - name: Deploy to VPS
-        if: success()
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 50022
-          script: |
-            cd /software-1/users_backend/
-            git pull origin main
-            deno run --allow-net --allow-read main.ts
+        run: |
+          ssh -i ~/.ssh/id_ed25519_ci_pipelines -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd /var/www/app/software-1/users_backend &&
+            git pull origin main &&
+            npm install --production &&
+            pm2 restart user_backend
+          "
+          
