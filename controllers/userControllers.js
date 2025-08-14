@@ -29,7 +29,7 @@ export const updateUser = async (req, res) => {
             return res.status(500).json({message: 'Kindly fill all the required fields'});
         }
 
-        const [updatedUser] = await database.execute('UPDATE users SET name = ?, email = ?, phone_number = ?, gender = ? WHERE id = ?;', [name, email, phone_number, gender, id]);
+        const [_updatedUser] = await database.execute('UPDATE users SET name = ?, email = ?, phone_number = ?, gender = ? WHERE id = ?;', [name, email, phone_number, gender, id]);
 
         if (updateUser.affectedRows === 0) {
             return res.status(404).json({message: 'User not found'})
@@ -46,9 +46,9 @@ export const deleteUser = async (req, res) => {
         const database = await connectDb();
         const { id } = req.body;
 
-        const [deletedUser] = await database.execute('DELETE FROM users WHERE id = ?', [id]);
+        const [_deletedUser] = await database.execute('DELETE FROM users WHERE id = ?', [id]);
 
-        if (deleteUser.affectedRows === 0) {
+        if (_deletedUser.affectedRows === 0) {
             return res.status(404).json({message: 'User to be deleted not found'})
         };
 
