@@ -1,3 +1,4 @@
+// this is just a test file
 import connectDb from "../config/database.js";
 
 export const createUser = async (req, res) => {

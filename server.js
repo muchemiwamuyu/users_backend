@@ -1,5 +1,6 @@
 import express from 'express';
 import userRoutes from './routes/userRoutes.js';
+import adminRoutes from './routes/adminRoutes.js'
 import dotenv from 'dotenv';
 import connectDb from './config/database.js';
 import process from 'node:process';
@@ -27,5 +28,6 @@ app.get('/', async (_req, res) => {
 })
 
 app.use('/api', userRoutes);
+app.use('/adm', adminRoutes);
 
 app.listen(port, () => console.log(`Server running on ${port}`));
